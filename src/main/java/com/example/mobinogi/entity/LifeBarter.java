@@ -1,9 +1,6 @@
 package com.example.mobinogi.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -11,11 +8,11 @@ import lombok.Setter;
 import java.sql.Timestamp;
 
 @Entity
-@Table(name = "life-barter")
+@Table(name = "life_barter")
 @Getter
 @Setter
 @NoArgsConstructor
-public class LifeBarter {
+public class LifeBarter{
 	
 	@Id
 	@Column(name = "barter_id", nullable = false)
@@ -53,4 +50,8 @@ public class LifeBarter {
 	
 	@Column(name = "barter_etc", length = 100)
 	private String barterEtc;
+	
+	@ManyToOne
+	@JoinColumn(name = "item_id", insertable = false, updatable = false)
+	private GameItem gameItem;
 }
