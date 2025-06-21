@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+    app:
+        image: openjdk:21-jdk
+        container_name: spring-boot-app
+        ports:
+            - "50621:50621"
+        volumes:
+            - ./target:/app
+        working_dir: /app
+        command: ["java", "-jar", "mobinogi-0.0.1.war"]
+        depends_on:
+            - db
+        environment:
+            SPRING_DATASOURCE_URL: jdbc:mysql://mysql-db:3306/mobinogi
+            SPRING_DATASOURCE_USERNAME: mobinogi
+            SPRING_DATASOURCE_PASSWORD: mobilaetus0420@@
+        env_file:
+            - .env
+    
+    db:
+        image: mysql:8
+        container_name: mysql-db
+        ports:
+            - "53306:3306"
+        environment:
+            MYSQL_ROOT_PASSWORD: "mobilaetus0420@@"
+            MYSQL_DATABASE: "mobinogi"
+            MYSQL_USER: "mobinogi"
+            MYSQL_PASSWORD: "mobilaetus0420@@"
+        volumes:
+            - db_data:/var/lib/mysql
+    
+    redis:
+        image: redis:latest
+        container_name: redis-cache
+        ports:
+            - "56379:6379"
+
+volumes:
+    db_data:

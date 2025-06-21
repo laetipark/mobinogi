@@ -1,4 +1,4 @@
-package com.example.mobinogi.service;
+package com.example.mobinogi.service.util;
 
 import com.example.mobinogi.entity.GameItem;
 import com.example.mobinogi.entity.GameNpc;
@@ -8,6 +8,7 @@ import com.example.mobinogi.repository.GameItemRepository;
 import com.example.mobinogi.repository.GameNpcRepository;
 import com.example.mobinogi.repository.GameRegionRepository;
 import com.example.mobinogi.repository.LifeBarterRepository;
+import com.example.mobinogi.service.game.GameItemService;
 import com.google.api.services.sheets.v4.Sheets;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,6 +26,7 @@ public class GoogleSheetsService{
 	private final GameRegionRepository gameRegionRepository;
 	private final LifeBarterRepository lifeBarterRepository;
 	private final Sheets sheets;
+	private final GameItemService gameItemService;
 	
 	@Value("${google.sheets.id}")
 	private String SPREADSHEET_ID; // 실제 스프레드시트 ID로 변경 필요
@@ -34,13 +36,14 @@ public class GoogleSheetsService{
 		GameNpcRepository gameNpcRepository,
 		GameRegionRepository gameRegionRepository,
 		LifeBarterRepository lifeBarterRepository,
-		Sheets sheets
-	){
+		Sheets sheets,
+		GameItemService gameItemService){
 		this.gameItemRepository = gameItemRepository;
 		this.gameNpcRepository = gameNpcRepository;
 		this.gameRegionRepository = gameRegionRepository;
 		this.lifeBarterRepository = lifeBarterRepository;
 		this.sheets = sheets;
+		this.gameItemService = gameItemService;
 	}
 	
 	@Transactional
@@ -66,8 +69,7 @@ public class GoogleSheetsService{
 			rowIndex++;
 		}
 		
-		// ✅ rowIndex 이후의 기존 아이템 삭제
-		gameItemRepository.deleteByItemIdGreaterThanEqual(rowIndex);
+		gameItemService.deleteGameItemSafely(rowIndex);
 	}
 	
 	@Transactional

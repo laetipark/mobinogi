@@ -17,11 +17,12 @@ public class SecurityConfig{
 		http
 			.csrf(AbstractHttpConfigurer::disable)
 			.authorizeHttpRequests(auth -> auth
-				.requestMatchers("/barter/**").permitAll()
+				.requestMatchers("/item/**", "/barter/**", "/guild/**").permitAll() // 여기 추가
 				.anyRequest().authenticated()
 			)
 			.httpBasic(Customizer.withDefaults()); // 또는 formLogin(Customizer.withDefaults());
 		
 		return http.build();
 	}
+	
 }

@@ -1,6 +1,6 @@
 package com.example.mobinogi.scheduler;
 
-import com.example.mobinogi.service.GoogleSheetsService;
+import com.example.mobinogi.service.util.GoogleSheetsService;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
