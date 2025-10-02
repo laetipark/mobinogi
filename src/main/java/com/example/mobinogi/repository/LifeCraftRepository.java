@@ -9,4 +9,6 @@ public interface LifeCraftRepository extends JpaRepository<LifeCraft, Integer>{
 	List<LifeCraft> findByItemId(Integer itemId);
 	
 	void deleteAllByItemId(Integer itemId);
+	
+	void deleteByCraftIdGreaterThanEqual(int rowIndex);
 }

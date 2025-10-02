@@ -1,13 +1,7 @@
 package com.example.mobinogi.service.util;
 
-import com.example.mobinogi.entity.GameItem;
-import com.example.mobinogi.entity.GameNpc;
-import com.example.mobinogi.entity.GameRegion;
-import com.example.mobinogi.entity.LifeBarter;
-import com.example.mobinogi.repository.GameItemRepository;
-import com.example.mobinogi.repository.GameNpcRepository;
-import com.example.mobinogi.repository.GameRegionRepository;
-import com.example.mobinogi.repository.LifeBarterRepository;
+import com.example.mobinogi.entity.*;
+import com.example.mobinogi.repository.*;
 import com.example.mobinogi.service.game.GameItemService;
 import com.google.api.services.sheets.v4.Sheets;
 import jakarta.transaction.Transactional;
@@ -25,6 +19,7 @@ public class GoogleSheetsService{
 	private final GameNpcRepository gameNpcRepository;
 	private final GameRegionRepository gameRegionRepository;
 	private final LifeBarterRepository lifeBarterRepository;
+	private final LifeCraftRepository lifeCraftRepository;
 	private final Sheets sheets;
 	private final GameItemService gameItemService;
 	
@@ -36,12 +31,15 @@ public class GoogleSheetsService{
 		GameNpcRepository gameNpcRepository,
 		GameRegionRepository gameRegionRepository,
 		LifeBarterRepository lifeBarterRepository,
+		LifeCraftRepository lifeCraftRepository,
 		Sheets sheets,
-		GameItemService gameItemService){
+		GameItemService gameItemService
+	){
 		this.gameItemRepository = gameItemRepository;
 		this.gameNpcRepository = gameNpcRepository;
 		this.gameRegionRepository = gameRegionRepository;
 		this.lifeBarterRepository = lifeBarterRepository;
+		this.lifeCraftRepository = lifeCraftRepository;
 		this.sheets = sheets;
 		this.gameItemService = gameItemService;
 	}
@@ -81,7 +79,7 @@ public class GoogleSheetsService{
 			String npcName = row.get(2).toString().trim();
 			if(npcName.isEmpty() || row.getFirst().toString().trim().equals("#N/A"))
 				continue;
-				
+			
 			GameNpc item = new GameNpc();
 			item.setNpcId(rowIndex);
 			item.setRegionId(Integer.valueOf(row.getFirst().toString()));
@@ -158,6 +156,32 @@ public class GoogleSheetsService{
 		
 		// ✅ rowIndex 이후의 기존 아이템 삭제
 		lifeBarterRepository.deleteByBarterIdGreaterThanEqual(rowIndex);
+	}
+	
+	@Transactional
+	public void fetchAndSaveCraft() throws IOException{
+		List<List<Object>> data = readSheet("craft!A2:O");
+		int rowIndex = 1; // item_id 시작값
+		
+		for(List<Object> row : data){
+			LifeCraft item = new LifeCraft();
+			
+			if(row.getFirst().toString().trim().equals("#N/A")){
+				continue;
+			}
+			
+			item.setCraftId(rowIndex);
+			item.setCraftSubId(Integer.valueOf(row.get(5).toString()));
+			item.setItemId(Integer.valueOf(row.getFirst().toString()));
+			item.setCraftIngredientId(Integer.valueOf(row.get(2).toString()));
+			item.setCraftIngredientCost(Integer.valueOf(row.get(4).toString()));
+			
+			lifeCraftRepository.save(item);
+			rowIndex++;
+		}
+		
+		// ✅ rowIndex 이후의 기존 아이템 삭제
+		lifeCraftRepository.deleteByCraftIdGreaterThanEqual(rowIndex);
 	}
 	
 	public List<List<Object>> readSheet(String range) throws IOException{

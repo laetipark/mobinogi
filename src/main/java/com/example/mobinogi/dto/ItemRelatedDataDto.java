@@ -8,14 +8,15 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.List;
+import java.util.Map;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class ItemRelatedDataDto{
+	private String itemName;
 	private List<LifeBarter> bartersByItemId;
 	private List<LifeBarter> bartersByExchangeId;
-	private List<LifeCraft> craftsByItemId;
-	
+	private Map<Integer, List<LifeCraft>> craftsBySubId;
 }

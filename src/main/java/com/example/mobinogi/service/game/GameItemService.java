@@ -11,6 +11,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -19,21 +21,27 @@ public class GameItemService{
 	private final LifeBarterRepository lifeBarterRepository;
 	private final LifeCraftRepository lifeCraftRepository;
 	
-	public ItemRelatedDataDto getAllRelatedDataByItemName(String itemName){
-		int itemId = gameItemRepository.findByItemNameContaining(itemName)
+	public ItemRelatedDataDto getAllRelatedDataByItemName(String name){
+		GameItem item = gameItemRepository.findByItemNameContaining(name)
 			.stream()
 			.findFirst()
-			.orElseThrow(() -> new IllegalArgumentException("Item not found"))
-			.getItemId();
+			.orElseThrow(() -> new IllegalArgumentException("Item not found"));
+		int itemId = item.getItemId();
+		String itemName = item.getItemName();
 		
 		List<LifeBarter> bartersByItemId = lifeBarterRepository.findByItemId(itemId);
 		List<LifeBarter> bartersByExchangeId = lifeBarterRepository.findByExchangeId(itemId);
 		List<LifeCraft> craftsByItemId = lifeCraftRepository.findByItemId(itemId);
 		
+		// ✅ 그룹화: craftSubId → LifeCraft 리스트
+		Map<Integer, List<LifeCraft>> craftsGroupedBySubId = craftsByItemId.stream()
+			.collect(Collectors.groupingBy(LifeCraft::getCraftSubId));
+		
 		ItemRelatedDataDto dto = new ItemRelatedDataDto();
+		dto.setItemName(itemName);
 		dto.setBartersByItemId(bartersByItemId);
 		dto.setBartersByExchangeId(bartersByExchangeId);
-		dto.setCraftsByItemId(craftsByItemId);
+		dto.setCraftsBySubId(craftsGroupedBySubId);
 		return dto;
 	}
 	
